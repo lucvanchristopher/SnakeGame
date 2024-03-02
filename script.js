@@ -5,6 +5,7 @@ window.onload = function() {
     var ctx;
     var delay = 100;
     var snakee;
+    var applee;
 
     init();
 
@@ -12,16 +13,18 @@ window.onload = function() {
         var canvas = document.createElement("canvas");
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
-        canvas.style.border = "1px solid black"; // Ajout de la couleur de la bordure
+        canvas.style.border = "1px solid black";
         document.body.appendChild(canvas);
         ctx = canvas.getContext('2d');
         snakee = new Snake([[6,4],[5,4],[4,4]],"right");
+        applee = new Apple([10,10]);
         refreshCanvas();
     }
 
     function refreshCanvas() {
         ctx.clearRect(0,0,canvasWidth,canvasHeight);
         snakee.draw();
+        applee.draw();
         snakee.advance();
         setTimeout(refreshCanvas,delay); 
     }
@@ -43,11 +46,9 @@ window.onload = function() {
             }
             ctx.restore();
         };
-        this.advance = function ()
-        {
+        this.advance = function () {
             var nextPosition = this.body[0].slice();
-            switch(this.direction)
-            {
+            switch(this.direction) {
                 case "left":
                     nextPosition[0] -= 1;
                     break;
@@ -55,10 +56,10 @@ window.onload = function() {
                     nextPosition[0] += 1;
                     break;
                 case "down":
-                    nextPosition[0] += 1;
-                     break;
+                    nextPosition[1] += 1; 
+                    break;
                 case "up":
-                    nextPosition[0] -= 1;
+                    nextPosition[1] -= 1; 
                     break;
                 default:
                     throw("invalid direction");
@@ -66,36 +67,44 @@ window.onload = function() {
             this.body.unshift(nextPosition);
             this.body.pop();
         };
-        this.setDirection = function(newDirection)
-        {
-            allowedDirection;
-            switch(this.direction)
-            {
+        this.setDirection = function(newDirection) {
+            var allowedDirection;
+            switch(this.direction) {
                 case "left":
                 case "right":
                     allowedDirection = ["up","down"];
                     break;
                 case "down":
+                case "up": // Ajout ici
                     allowedDirection = ["left","right"]; 
-                     break;
-                case "up":
                     break;
                 default:
-                        throw("invalid direction");
+                    throw("invalid direction");
             }
-            if(allowedDirection.indexOf(newDirection) > -1)
-            {
+            if(allowedDirection.indexOf(newDirection) > -1) {
                 this.direction = newDirection;
             }
-
         };
     }
     
+    function Apple(position) {
+        this.position = position;
+        this.draw = function() {
+            ctx.save();
+            ctx.fillStyle = "#33cc33";
+            ctx.beginPath();
+            var radius = blockSize/2;
+            var x = this.position[0]*blockSize + radius;
+            var y = this.position[1]*blockSize + radius;
+            ctx.arc(x,y,radius,0,Math.PI*2,true);
+            ctx.fill();
+            ctx.restore();
+        };
+    }
     document.onkeydown = function handleKeyDown(e) {
         var key = e.keyCode;
         var newDirection;
-        switch(key)
-        {
+        switch(key) {
             case 37:
                 newDirection = "left";
                 break;
@@ -112,5 +121,5 @@ window.onload = function() {
                 return;
         }
         snakee.setDirection(newDirection);
-    }
-}
+    };
+};
